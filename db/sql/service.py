@@ -6,7 +6,7 @@ from sqlalchemy import select, literal_column, update, delete
 from sqlalchemy.orm import selectinload
 
 from db.sql.connect import AsyncSessionMaker
-from db.sql.model import User
+from db.sql.model import User, WFPData
 
 
 class SqlService(ABC):
@@ -22,7 +22,8 @@ class ReadUser(SqlService):
 
     async def run(self):
         async with AsyncSessionMaker() as session:
-            user = await session.scalar(select(User).where(User.tg_id == literal_column(str(self.tg_id))))
+            user = await session.scalar(
+                select(User).where(User.tg_id == literal_column(str(self.tg_id))).options(selectinload(User.wfp_data)))
             return user
 
 
@@ -159,6 +160,43 @@ class UsersWithDateOfKill(SqlService):
                 select(User).where(User.date_of_kill.isnot(None))
             )
             return users_scalar.all()
+
+
+class AttachWfpDataToUser(SqlService):
+
+    def __init__(self, tg_id: int, order_id: str):
+        self.tg_id = tg_id
+        self.order_id = order_id
+
+    async def run(self):
+        async with AsyncSessionMaker() as session:
+            user = await session.scalar(
+                select(User).where(User.tg_id == literal_column(str(self.tg_id))).options(selectinload(User.wfp_data)))
+            if user.wfp_data:
+                return user.wfp_data
+            wfp_data = WFPData(order=self.order_id, user_id=user.tg_id)
+            session.add(wfp_data)
+            user.wfp_data = wfp_data
+            await session.commit()
+            return wfp_data
+
+
+class DetachWfpDataFromUser(SqlService):
+
+    def __init__(self, tg_id: int):
+        self.tg_id = tg_id
+
+    async def run(self):
+        async with AsyncSessionMaker() as session:
+            user = await session.scalar(
+                select(User).where(User.tg_id == literal_column(str(self.tg_id))).options(selectinload(User.wfp_data)))
+            if user.wfp_data:
+                wfp_data = user.wfp_data
+                await session.delete(wfp_data)
+                user.wfp_data = None
+                await session.commit()
+                return True
+            return False
 
 
 async def run_sql(runnable: SqlService):

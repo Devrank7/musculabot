@@ -39,7 +39,6 @@ class KickUser(BotTask):
 
     async def task(self):
         try:
-            logger.warning(f"CHAT ID: {CHAT_ID}")
             member = await self.bot.get_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
             if member and member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.RESTRICTED]:
                 await self.bot.ban_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
@@ -76,11 +75,11 @@ class JoinUser(BotTask):
                 invite_link = await self.bot.create_chat_invite_link(chat_id=CHAT_ID, creates_join_request=True,
                                                                      expire_date=datetime.now() + timedelta(hours=1))
                 await self.bot.send_message(self.tg_id,
-                                            f"{self.JOIN_TEXT} . Вот ваша ссылка на вступление"
+                                            f"{self.JOIN_TEXT} . Вот ваша ссылка на вступление👋"
                                             f" {invite_link.invite_link} ."
-                                            f" Обратите внимание что ссылка будет действительна"
-                                            f" в течении часа после чего она станет недоступной и вы"
-                                            f" не сможете вступить в канала. Дак что торопитесь!")
+                                            f" Обратите внимание, что ссылка будет действительна"
+                                            f" в течении часа, после чего она станет недоступной, и вы"
+                                            f" не сможете вступить в канала. Не тяните время!👌")
                 await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + timedelta(minutes=5)))
             else:
                 if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.RESTRICTED]:

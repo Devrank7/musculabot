@@ -29,6 +29,10 @@ buttons_subscribe = InlineKeyboardMarkup(inline_keyboard=[
 dismiss_button = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Отменить подписку", callback_data="dismiss")]
 ])
+dismiss_wtf_button = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Отменить подписку", callback_data="dismiss")],
+    [InlineKeyboardButton(text="Отменить авто списание через WFP")]
+])
 
 
 @router.message(CommandStart())
@@ -36,6 +40,12 @@ async def start_router(message: Message, user: User):
     end = ''
     buttons = buttons_subscribe
     if check_access_for_chanel(user):
-        end = "*У Вас есть подписка до " + user.date_of_kill.strftime('%d.%m.%Y').replace('.', '\\.') + '*'
-        buttons = dismiss_button
+        if user.wfp_data:
+            buttons = dismiss_button
+            end = ('🔊У вас установлено авто списание через wayforpay. Вы можете его отключить.'
+                   'Если отключить. Подписку вы не потеряете🤟, но через месяц автоматически она не продлится💫 \n'
+                   'и прийдется выбирать платежную систему для оплаты подписки на канал.')
+        else:
+            buttons = dismiss_button
+        end += "*У Вас есть подписка до " + user.date_of_kill.strftime('%d.%m.%Y').replace('.', '\\.') + '*'
     await message.answer(f"{start_message_text}. {end}", reply_markup=buttons, parse_mode=ParseMode.MARKDOWN)

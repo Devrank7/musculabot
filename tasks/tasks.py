@@ -1,26 +1,25 @@
 import logging
-import os
 from abc import abstractmethod, ABC
 from datetime import datetime
 
 from aiogram import Bot
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from dotenv import load_dotenv
 
-from api.bot.access import KickUser
+from api.bot.access import KickUser, JoinUser
+from api.payments.wayforpay_api import check_ok_regular_invoice, remove_regular_invoice
 from db.sql.model import User
 from db.sql.service import run_sql, AllUsers, UpdateUserDateBeforeWeekOnNone, \
-    UpdateUserDateThreeOnNone, UpdateUserDateOneOnNone
+    UpdateUserDateThreeOnNone, UpdateUserDateOneOnNone, DetachWfpDataFromUser
 from utility.utils import check_access_for_chanel
-
-load_dotenv()
-CHAT_ID = os.getenv("CHANEL_ID")
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 dismiss_button = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Отменить подписку сейчас", callback_data="dismiss")],
+    [InlineKeyboardButton(text="Отменить подписку сейчас🙄", callback_data="dismiss")],
     [InlineKeyboardButton(text="Купить подписку на месяц сейчас🦾", callback_data="unity")]
+])
+buttons_subscribe = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Получить доступ в комьюнити🦾", callback_data="unity")],
 ])
 
 
@@ -38,7 +37,21 @@ class DistributedTask(Task):
     async def change_access_for_chanel(self, user: User):
         logger.info(f"WFP is {user.wfp_data}")
         if user.wfp_data:
-            pass
+            order = user.wfp_data.order
+            status = await check_ok_regular_invoice(order)
+            if status:
+                await JoinUser(self.bot, user.tg_id).task()
+                await self.bot.send_message(user.tg_id, 'Успешно продлено с автоматическим списанием!')
+            else:
+                await remove_regular_invoice(order)
+                await run_sql(DetachWfpDataFromUser(user.tg_id))
+                await KickUser(self.bot, user.tg_id).task()
+                logger.warning("Пользователь с WFP был кикнут")
+                await self.bot.send_message(user.tg_id,
+                                            "Не удалось продлить подписку🙁."
+                                            " Регулярная подписка окончена, или отключена."
+                                            "Для покупки месячной подписки выберите оплату🤞",
+                                            reply_markup=buttons_subscribe)
         else:
             await KickUser(self.bot, user.tg_id).task()
             logger.info("Пользователь был кикнут")
@@ -46,17 +59,17 @@ class DistributedTask(Task):
     async def distributed(self, user: User):
         try:
             if user.date_week_before_kill and datetime.now() > user.date_week_before_kill:
-                await self.bot.send_message(user.tg_id, "Подписка заканчивается через 7 дней!",
+                await self.bot.send_message(user.tg_id, "💥Подписка заканчивается через 7 дней!",
                                             reply_markup=dismiss_button)
                 await run_sql(UpdateUserDateBeforeWeekOnNone(user.tg_id))
                 return
             if user.date_three_before_kill and datetime.now() > user.date_three_before_kill:
-                await self.bot.send_message(user.tg_id, "Подписка заканчивается через 3 дней",
+                await self.bot.send_message(user.tg_id, "💥Подписка заканчивается через 3 дней",
                                             reply_markup=dismiss_button)
                 await run_sql(UpdateUserDateThreeOnNone(user.tg_id))
                 return
             if user.date_one_before_kill and datetime.now() > user.date_one_before_kill:
-                await self.bot.send_message(user.tg_id, "Подписка заканчивается через 1 дней",
+                await self.bot.send_message(user.tg_id, "💥Подписка заканчивается через 1 дней",
                                             reply_markup=dismiss_button)
                 await run_sql(UpdateUserDateOneOnNone(user.tg_id))
                 return
