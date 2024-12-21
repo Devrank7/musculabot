@@ -15,7 +15,7 @@ pay_button = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Пополнить через TON 💳")],
     [KeyboardButton(text="Пополнить через WayForPay 💎")],
     [KeyboardButton(text="Пополнить через Coinpayment 💵")],
-    [KeyboardButton(text="Пополнить через Liqpay")],
+    # [KeyboardButton(text="Пополнить через Liqpay")],
 ], resize_keyboard=True, one_time_keyboard=True)
 remove_wfp_data = ReplyKeyboardMarkup(keyboard=[
     [KeyboardButton(text="Удалить текущий регулярный платеж и продлить подписку")]

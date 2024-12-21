@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aiogram_muscula_bot
+    depends_on:
+      - db
+    environment:
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+      DATABASE_USER: boot
+      DATABASE_PASSWORD: boot
+      DATABASE_NAME: muscula_sql
+    env_file:
+      - .env
+    networks:
+      - my-network
+
+  db:
+    image: postgres:15
+    container_name: postgres_db_bot
+    environment:
+      POSTGRES_USER: boot
+      POSTGRES_PASSWORD: boot
+      POSTGRES_DB: muscula_sql
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "8101:5432"
+    networks:
+      - my-network
+
+
+volumes:
+  postgres_data:
+
+networks:
+  my-network:
+    driver: bridge
