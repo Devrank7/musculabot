@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ReplyKeyboardRemove
 
 from api.bot.access import JoinUser
 from api.payments.coinpayments import create_transaction, check_payment_status
@@ -16,7 +16,8 @@ async def pay_router(message: Message) -> None:
         [InlineKeyboardButton(text="Оплатить 💳", url=url)],
         [InlineKeyboardButton(text='Проверить оплату ⚡', callback_data=f"cp_{tx_id}")]
     ])
-    await message.answer("Вы используете Coinpayment для оплаты в лучший канал бодибилдеров🦍."
+    await message.answer("Теперь нужно оплатить подписку", reply_markup=ReplyKeyboardRemove())
+    await message.answer("Вы используете Coinpayment для оплаты в лучший канал бодибилдеров 🦍."
                          "Для этого оплатите нажав на кнопку 'Оплатить' , после оплати нажмите 'Проверить оплату'👌",
                          reply_markup=cp_button)
 

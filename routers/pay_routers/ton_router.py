@@ -2,7 +2,7 @@ import os
 
 from aiogram import Router, F
 from aiogram.enums import ParseMode
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, ReplyKeyboardRemove
 from dotenv import load_dotenv
 
 from api.bot.access import JoinUser
@@ -38,6 +38,7 @@ async def pay_router(message: Message) -> None:
     ton_button = InlineKeyboardMarkup(inline_keyboard=[
         [InlineKeyboardButton(text="Проверить оплату⚡", callback_data=f"ton_{memo_code}")]
     ])
+    await message.answer("Теперь нужно оплатить подписку", reply_markup=ReplyKeyboardRemove())
     await message.answer(get_ton_text(wallet_address_base64, memo_code), reply_markup=ton_button,
                          parse_mode=ParseMode.MARKDOWN)
 

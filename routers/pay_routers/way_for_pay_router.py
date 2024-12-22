@@ -1,7 +1,7 @@
 import random
 
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardRemove
 
 from api.bot.access import JoinUser
 from api.payments.wayforpay_api import create_regular_invoice, check_ok_regular_invoice
@@ -27,6 +27,7 @@ async def pay_router(message: Message, user: User) -> None:
         [InlineKeyboardButton(text="Оплатить 💳", url=url[0])],
         [InlineKeyboardButton(text="Проверить оплату ⚡", callback_data=f"wfp_{order_id}")]
     ])
+    await message.answer("Теперь нужно оплатить подписку", reply_markup=ReplyKeyboardRemove())
     await message.answer(text_wtf, reply_markup=wtf_buttons)
 
 
