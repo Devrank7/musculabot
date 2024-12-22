@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from db.sql.connect import init_db
 from routers import start_router, join_router, way_router, forward_router, wfp_data_remove_router, support_router
 from routers.dismiss_routers import dismiss_router
+from routers.lang_routers import lang_router
 from tasks.scheduler import scheduler
 from tasks.tasks import DistributedTask
 
@@ -21,7 +22,8 @@ routers = [
     way_router.router,
     forward_router.router,
     wfp_data_remove_router.router,
-    support_router.router
+    support_router.router,
+    lang_router.router,
 ]
 tasks = [
     {"executor": DistributedTask, "args": [bot]},

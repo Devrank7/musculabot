@@ -5,19 +5,17 @@ from datetime import timedelta, datetime
 
 from aiogram import Bot
 from aiogram.enums import ChatMemberStatus
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from dotenv import load_dotenv
 
-from db.sql.service import run_sql, UpdateUserDate, UpdateUserDateOnNone
+from buttons.inline import get_subscribe
+from db.sql.service import run_sql, UpdateUserDate, UpdateUserDateOnNone, ReadUser
+from lang.language import translate
 
 load_dotenv()
 CHAT_ID = int(os.getenv("CHAT_ID"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-buttons_subscribe = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Купить подписку на месяц🦾", callback_data="unity")],
-])
 DEBUG = True
 
 
@@ -40,15 +38,16 @@ class KickUser(BotTask):
 
     async def task(self):
         try:
+            user = await run_sql(ReadUser(tg_id=self.tg_id))
             member = await self.bot.get_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
             if member and member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.RESTRICTED]:
                 await self.bot.ban_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
-                await self.bot.send_message(self.tg_id, self.CRY_MESSAGE, reply_markup=buttons_subscribe)
+                await self.bot.send_message(self.tg_id, translate("31", user.lang), reply_markup=get_subscribe(user))
                 await run_sql(UpdateUserDateOnNone(self.tg_id))
             else:
                 logger.info("User not found")
                 if self.left:
-                    await self.bot.send_message(self.tg_id, self.CRY_MESSAGE, reply_markup=buttons_subscribe)
+                    await self.bot.send_message(self.tg_id, self.CRY_MESSAGE, reply_markup=get_subscribe(user))
                     await run_sql(UpdateUserDateOnNone(self.tg_id))
         except Exception as e:
             logger.error(f"Ошибка в методе task класс KickUser {e}")
@@ -70,25 +69,24 @@ class JoinUser(BotTask):
 
     async def task(self):
         try:
+            user = await run_sql(ReadUser(self.tg_id))
             member = await self.bot.get_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
             if (member is None) or (member.status in [ChatMemberStatus.KICKED, ChatMemberStatus.LEFT]):
                 await self.bot.unban_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
                 invite_link = await self.bot.create_chat_invite_link(chat_id=CHAT_ID, creates_join_request=True,
                                                                      expire_date=datetime.now() + timedelta(hours=1))
                 await self.bot.send_message(self.tg_id,
-                                            f"{self.JOIN_TEXT} . Вот ваша ссылка на вступление👋"
+                                            f"{translate("32", user.lang)} . {translate("34", user.lang)}"
                                             f" {invite_link.invite_link} ."
-                                            f" Обратите внимание, что ссылка будет действительна"
-                                            f" в течении часа, после чего она станет недоступной, и вы"
-                                            f" не сможете вступить в канала. Не тяните время!👌")
+                                            f"{translate("35", user.lang)}")
                 await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + (
                     timedelta(minutes=5) if DEBUG else timedelta(days=30)), debug=DEBUG))
             else:
                 if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.RESTRICTED]:
                     await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + (
                         timedelta(minutes=5) if DEBUG else timedelta(days=30)), debug=DEBUG))
-                    await self.bot.send_message(self.tg_id, self.BOOST_TEXT)
+                    await self.bot.send_message(self.tg_id, translate("33", user.lang))
                 elif member.status in [ChatMemberStatus.CREATOR, ChatMemberStatus.ADMINISTRATOR]:
-                    await self.bot.send_message(self.tg_id, "Вы админ этой группы!💪")
+                    await self.bot.send_message(self.tg_id, translate("39", user.lang))
         except Exception as e:
             logger.error(f"err tasks.py class JoinUser: {e}")

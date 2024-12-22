@@ -1,9 +1,11 @@
 from aiogram import Router
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import Message
 
+from buttons.inline import get_subscribe, get_dismiss1, get_dismiss_wtf_button
 from db.sql.model import User
+from lang.language import translate
 from middlewares.middleware import AuthMiddleware
 from utility.utils import check_access_for_chanel
 
@@ -24,29 +26,24 @@ start_message_text = """
 Жду тебя в комьюнити🦍
 🤝Связь с поддержкой /support
 """
-buttons_subscribe = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Получить доступ в комьюнити🦾", callback_data="unity")],
-])
-dismiss_button = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Отменить подписку", callback_data="dismiss")]
-])
-dismiss_wtf_button = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="Отменить подписку", callback_data="dismiss")],
-    [InlineKeyboardButton(text="Отменить авто списание через WFP")]
-])
 
 
 @router.message(CommandStart())
 async def start_router(message: Message, user: User):
+    print(f"LANG: {user.lang}")
     end = ''
-    buttons = buttons_subscribe
+    end1 = ''
+    buttons = get_subscribe(user)
     if check_access_for_chanel(user):
         if user.wfp_data:
-            buttons = dismiss_button
+            buttons = get_dismiss_wtf_button(user)
             end = ('🔊У вас установлено авто списание через wayforpay. Вы можете его отключить.'
                    'Если отключить. Подписку вы не потеряете🤟, но через месяц автоматически она не продлится💫 \n'
                    'и прийдется выбирать платежную систему для оплаты подписки на канал.')
         else:
-            buttons = dismiss_button
-        end += "*У Вас есть подписка до " + user.date_of_kill.strftime('%d.%m.%Y').replace('.', '\\.') + '*'
-    await message.answer(f"{start_message_text}. {end}", reply_markup=buttons, parse_mode=ParseMode.MARKDOWN)
+            buttons = get_dismiss1(user)
+        end1 = "*У Вас есть подписка до " + user.date_of_kill.strftime('%d.%m.%Y').replace('.', '\\.') + '*'
+    end_text = translate("14", user.lang) if end else ''
+    end_text1 = translate("36", user.lang) if end1 else ''
+    await message.answer(f"{translate("13", user.lang)}. {end_text} {end_text1}", reply_markup=buttons,
+                         parse_mode=ParseMode.MARKDOWN)

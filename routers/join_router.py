@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from db.sql.model import User
 from db.sql.service import ReadUser, run_sql
+from lang.language import translate
 
 router = Router()
 load_dotenv()
@@ -26,7 +27,7 @@ async def join_chat_request(join_request: ChatJoinRequest):
     if user:
         if fit_user(user):
             await join_request.approve()
-            await join_request.bot.send_message(user.tg_id, "Мы одобрили вашу заявку!!🎉")
+            await join_request.bot.send_message(user.tg_id, translate("16", user.lang))
             return
-    await join_request.bot.send_message(user.tg_id, "Мы НЕ одобрили вашу заявку!!☹️")
+    await join_request.bot.send_message(user.tg_id, translate("17", user.lang))
     await join_request.decline()
