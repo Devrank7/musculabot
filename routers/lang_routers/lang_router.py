@@ -31,7 +31,7 @@ async def lang_callback(query: CallbackQuery, user: User):
     lang = query.data.split("_")[1]
     if lang == "ua":
         await run_sql(UpdateUserLang(user.tg_id, Lang.UA))
-        await query.message.edit_text("Ваша мова змінилася українською 🇺🇦. Щоб взаємодіяти з ботом, натисніть /start")
+        await query.message.edit_text("Ваша мова змінилася на українську 🇺🇦. Щоб взаємодіяти з ботом, натисніть /start")
     elif "ru":
         await run_sql(UpdateUserLang(user.tg_id, Lang.RU))
         await query.message.edit_text("Ваш язык изменился на русский 🇷🇺. Для взаимодействия с ботом нажмите /start")
