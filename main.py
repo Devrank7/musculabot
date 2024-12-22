@@ -12,7 +12,7 @@ from tasks.scheduler import scheduler
 from tasks.tasks import DistributedTask
 
 load_dotenv()
-bot = Bot(token=os.getenv('BOT_TEST_TOKEN'))
+bot = Bot(token=os.getenv('BOT_TOKEN'))
 dp = Dispatcher()
 routers = [
     start_router.router,

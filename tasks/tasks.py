@@ -38,7 +38,9 @@ class DistributedTask(Task):
         logger.info(f"WFP is {user.wfp_data}")
         if user.wfp_data:
             order = user.wfp_data.order
+            logger.warning(f"ORDER: {order}")
             status = await check_ok_regular_invoice(order)
+            print(f"STATUS: {status}")
             if status:
                 await JoinUser(self.bot, user.tg_id).task()
                 await self.bot.send_message(user.tg_id, 'Успешно продлено с автоматическим списанием!')

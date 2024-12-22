@@ -54,7 +54,8 @@ def create_regular_invoice(order_id):
             data=data
         )
         print(f"Rest: {rest.text}")
-        return 'https://secure.wayforpay.com' + BeautifulSoup(rest.text, features="html.parser").find('form', id='cardpay')['action'], data[
+        return 'https://secure.wayforpay.com' + \
+               BeautifulSoup(rest.text, features="html.parser").find('form', id='cardpay')['action'], data[
             'merchantSignature']
     except Exception as e:
         logger.error(f"Error: module 'wayforpay_api.py', method 'create_regular_invoice', reason: {e}")
@@ -80,7 +81,7 @@ async def check_ok_regular_invoice(order_id):
         if json is None:
             logger.info("Json is NONE")
             return False
-        return json['status'] == 'Active'
+        return str(json['status']).strip().lower() in ['active', 'approved', 'success']
     except Exception as e:
         logger.error(f"Error: module 'wayforpay_api.py', method 'check_ok_regular_invoice', reason: {e}")
 
