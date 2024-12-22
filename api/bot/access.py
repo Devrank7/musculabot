@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 buttons_subscribe = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Купить подписку на месяц🦾", callback_data="unity")],
 ])
+DEBUG = True
 
 
 class BotTask(ABC):
@@ -80,10 +81,12 @@ class JoinUser(BotTask):
                                             f" Обратите внимание, что ссылка будет действительна"
                                             f" в течении часа, после чего она станет недоступной, и вы"
                                             f" не сможете вступить в канала. Не тяните время!👌")
-                await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + timedelta(minutes=5)))
+                await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + (
+                    timedelta(minutes=5) if DEBUG else timedelta(days=30)), debug=DEBUG))
             else:
                 if member.status in [ChatMemberStatus.MEMBER, ChatMemberStatus.RESTRICTED]:
-                    await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + timedelta(minutes=5)))
+                    await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + (
+                        timedelta(minutes=5) if DEBUG else timedelta(days=30)), debug=DEBUG))
                     await self.bot.send_message(self.tg_id, self.BOOST_TEXT)
                 elif member.status in [ChatMemberStatus.CREATOR, ChatMemberStatus.ADMINISTRATOR]:
                     await self.bot.send_message(self.tg_id, "Вы админ этой группы!💪")

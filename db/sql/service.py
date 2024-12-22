@@ -41,15 +41,19 @@ class CreateUser(SqlService):
 
 
 class UpdateUserDate(SqlService):
-    def __init__(self, tg_id: int, date_time: Optional[datetime.datetime] = None):
+    def __init__(self, tg_id: int, date_time: Optional[datetime.datetime] = None, debug: bool = False):
         self.tg_id = tg_id
         self.date_time = date_time
+        self.debug = debug
 
     async def run(self):
         async with AsyncSessionMaker() as session:
-            date_one_before_kill = self.date_time - datetime.timedelta(minutes=1)
-            date_three_before_kill = self.date_time - datetime.timedelta(minutes=2)
-            date_week_before_kill = self.date_time - datetime.timedelta(minutes=3)
+            date_one_before_kill = self.date_time - (
+                datetime.timedelta(minutes=1) if self.debug else datetime.timedelta(days=1))
+            date_three_before_kill = self.date_time - (
+                datetime.timedelta(minutes=2) if self.debug else datetime.timedelta(days=3))
+            date_week_before_kill = self.date_time - (
+                datetime.timedelta(minutes=3) if self.debug else datetime.timedelta(days=7))
             stmt = (
                 update(User)
                 .where(User.tg_id == literal_column(str(self.tg_id)))
