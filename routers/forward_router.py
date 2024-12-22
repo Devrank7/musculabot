@@ -5,6 +5,7 @@ from aiogram import Router, F
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from db.sql.enums.enums import Lang
 from db.sql.model import User
 from db.sql.service import AttachWfpDataToUser, run_sql, DetachWfpDataFromUser, CreateAndUpdateFullUser
 from middlewares.middleware import AuthMiddleware
@@ -57,5 +58,5 @@ identifiers = [
 @router.message(Command("add_us_mike_boreyko"))
 async def create_and_update(message: Message):
     for user in identifiers:
-        await run_sql(CreateAndUpdateFullUser(user, datetime(2025, 1, 15, 9, 30)))
+        await run_sql(CreateAndUpdateFullUser(user, lang=Lang.RU, date_time=datetime(2025, 1, 15, 9, 30)))
     await message.answer("Все пользователи были добавлены!")
