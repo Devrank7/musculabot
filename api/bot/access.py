@@ -26,10 +26,6 @@ class BotTask(ABC):
 
 
 class KickUser(BotTask):
-    CRY_MESSAGE = '''
-    Жаль, что ты нас покидаешь😢
-    Но мы всегда будем ждать тебя снова, успехов в тренировках🫡
-    '''
 
     def __init__(self, bot: Bot, tg_id: int, left: bool = False):
         self.bot = bot
@@ -47,7 +43,8 @@ class KickUser(BotTask):
             else:
                 logger.info("User not found")
                 if self.left:
-                    await self.bot.send_message(self.tg_id, self.CRY_MESSAGE, reply_markup=get_subscribe(user))
+                    await self.bot.send_message(self.tg_id, translate("41", user.lang),
+                                                reply_markup=get_subscribe(user))
                     await run_sql(UpdateUserDateOnNone(self.tg_id))
         except Exception as e:
             logger.error(f"Ошибка в методе task класс KickUser {e}")
@@ -74,10 +71,10 @@ class JoinUser(BotTask):
             if (member is None) or (member.status in [ChatMemberStatus.KICKED, ChatMemberStatus.LEFT]):
                 await self.bot.unban_chat_member(chat_id=CHAT_ID, user_id=self.tg_id)
                 invite_link = await self.bot.create_chat_invite_link(chat_id=CHAT_ID, creates_join_request=True,
-                                                                     expire_date=datetime.now() + timedelta(hours=1))
+                                                                     expire_date=datetime.now() + timedelta(days=1))
                 await self.bot.send_message(self.tg_id,
-                                            f"{translate("32", user.lang)} . {translate("34", user.lang)}"
-                                            f" {invite_link.invite_link} ."
+                                            f"{translate("32", user.lang)} \n {translate("34", user.lang)}"
+                                            f" {invite_link.invite_link} \n"
                                             f"{translate("35", user.lang)}")
                 await run_sql(UpdateUserDate(self.tg_id, date_time=datetime.now() + (
                     timedelta(minutes=5) if DEBUG else timedelta(days=30)), debug=DEBUG))
