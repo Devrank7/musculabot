@@ -22,6 +22,7 @@ start_message_text = """
 
 🔥Минимум стоимости за максимум контента и пользы\\.
 Жду тебя в комьюнити🦍
+🤝Связь с поддержкой /support
 """
 buttons_subscribe = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="Получить доступ в комьюнити🦾", callback_data="unity")],

@@ -6,7 +6,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from dotenv import load_dotenv
 
 from db.sql.connect import init_db
-from routers import start_router, join_router, way_router, forward_router, wfp_data_remove_router
+from routers import start_router, join_router, way_router, forward_router, wfp_data_remove_router, support_router
 from routers.dismiss_routers import dismiss_router
 from tasks.scheduler import scheduler
 from tasks.tasks import DistributedTask
@@ -20,7 +20,8 @@ routers = [
     dismiss_router.router,
     way_router.router,
     forward_router.router,
-    wfp_data_remove_router.router
+    wfp_data_remove_router.router,
+    support_router.router
 ]
 tasks = [
     {"executor": DistributedTask, "args": [bot]},
