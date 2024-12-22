@@ -11,7 +11,7 @@ from lang.language import translate
 
 router = Router()
 load_dotenv()
-CHAT_ID = int(os.environ.get("CHAT_ID"))
+CHAT_ID = int(os.environ.get("CHANEL_ID"))
 
 
 def fit_user(user: User) -> bool:

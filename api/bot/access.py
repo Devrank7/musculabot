@@ -12,11 +12,11 @@ from db.sql.service import run_sql, UpdateUserDate, UpdateUserDateOnNone, ReadUs
 from lang.language import translate
 
 load_dotenv()
-CHAT_ID = int(os.getenv("CHAT_ID"))
+CHAT_ID = int(os.getenv("CHANEL_ID"))
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-DEBUG = True
+DEBUG = False
 
 
 class BotTask(ABC):
