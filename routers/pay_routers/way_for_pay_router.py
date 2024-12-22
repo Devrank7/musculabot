@@ -39,6 +39,7 @@ async def order_callback(query: CallbackQuery):
         await run_sql(AttachWfpDataToUser(query.from_user.id, order_id))
         await query.answer("Вы успешно оплатили доступ🥳 Используя wayforpay, с регулярной подпиской!🙌", show_alert=True)
         await query.message.delete()
-        await JoinUser(query.bot, query.from_user.id).task()
+        # await JoinUser(query.bot, query.from_user.id).task()
     else:
-        await query.answer("Вы еще не оплатили регулярный платеж!", show_alert=True)
+        await query.answer("Вы еще не оплатили регулярный платеж!☹️ Если вы все же оплатили, то подождите 2 - 5 минут!",
+                           show_alert=True)

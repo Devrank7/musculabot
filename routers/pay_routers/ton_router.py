@@ -46,13 +46,14 @@ async def pay_router(message: Message) -> None:
 @router.callback_query(F.data.startswith("ton_"))
 async def ton_reader(query: CallbackQuery):
     memo = query.data.split('_')[1]
-    status, error = await check_payment(wallet_address_hex16, memo, 0.7)
+    status, error = await check_payment(wallet_address_hex16, memo, 0.6)
     if status:
         await query.answer("Вы успешно оплатили!🥳", show_alert=True)
         await query.message.delete()
-        await JoinUser(query.bot, query.from_user.id).task()
+        # await JoinUser(query.bot, query.from_user.id).task()
     else:
         if error:
             await query.answer("Случилась ошибка, проверьте логи!☹️")
         else:
-            await query.answer("Вы еще не продлили!☹️", show_alert=True)
+            await query.answer("Вы еще не оплатили!☹️ Если вы все же оплатили, то подождите 2 - 5 минут!",
+                               show_alert=True)

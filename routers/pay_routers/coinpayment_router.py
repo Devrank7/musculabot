@@ -29,7 +29,7 @@ async def coinpayment_callback(query: CallbackQuery):
     if ok:
         await query.answer("Вы успешно оплатили через Coinpayment!🥳", show_alert=True)
         await query.message.delete()
-        await JoinUser(query.bot, query.from_user.id).task()
+        # await JoinUser(query.bot, query.from_user.id).task()
     else:
         await query.answer("Coinpayment еще не подтвердил транзакцию или вы не оплатили!☹️ Если вы все же оплатили,"
                            "то подождите немного от 10 до 35 минут, к тому времени все должно пройти успешно!",
