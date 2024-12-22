@@ -224,10 +224,11 @@ class DetachWfpDataFromUser(SqlService):
 
 class CreateAndUpdateFullUser(SqlService):
 
-    def __init__(self, tg_id: int, date_time: Optional[datetime.datetime] = None, debug: bool = False):
+    def __init__(self, tg_id: int, lang: Lang, date_time: Optional[datetime.datetime] = None, debug: bool = False):
         self.tg_id = tg_id
         self.date_time = date_time
         self.debug = debug
+        self.lang = lang
 
     async def run(self):
         async with AsyncSessionMaker() as session:
@@ -247,6 +248,7 @@ class CreateAndUpdateFullUser(SqlService):
                 user.date_one_before_kill = date_one_before_kill
                 user.date_three_before_kill = date_three_before_kill
                 user.date_week_before_kill = date_week_before_kill
+                user.lang = self.lang
                 user.date_of_kill = self.date_time
             else:
                 user = User(
@@ -255,6 +257,7 @@ class CreateAndUpdateFullUser(SqlService):
                     date_three_before_kill=date_three_before_kill,
                     date_week_before_kill=date_week_before_kill,
                     date_of_kill=self.date_time,
+                    lang=self.lang
                 )
                 session.add(user)
             await session.commit()
