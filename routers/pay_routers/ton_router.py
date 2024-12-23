@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from api.bot.access import JoinUser
 from api.payments.ton import check_payment
+from api.payments.ton_helper.ton_calculater import get_require_ton
 from buttons.inline import get_ton_buttons
 from db.sql.model import User
 from filter.reply import ReplyFilter
@@ -22,7 +23,7 @@ wallet_address_base64 = os.getenv("WALLET_ADRESS_BASE64")
 wallet_address_hex16 = os.getenv("WALLET_ADRESS_HEX")
 
 
-def get_ton_text(wallet_address, memo, user: User):
+def get_ton_text(wallet_address, memo, user: User, ton_require: float):
     return f'''
 {translate("37", user.lang)}
 
@@ -30,23 +31,28 @@ def get_ton_text(wallet_address, memo, user: User):
 `- - - - - - - - - - - - - - - - -` 
 👉 *Memo:* `{memo}`
 
-{translate("38", user.lang)}
+{translate("38", user.lang)} {ton_require} TON.
+{translate("38.1", user.lang)}
 '''
 
 
 @router.message(ReplyFilter('1'))
 async def pay_router(message: Message, user: User) -> None:
     memo_code = generate_random_code()
-    ton_button = get_ton_buttons(user, memo_code)
+    require_ton = get_require_ton()
+    print(f"REQUIRE TON: {require_ton}")
+    ton_button = get_ton_buttons(user, memo_code, require_ton)
     await message.answer(translate("19", user.lang), reply_markup=ReplyKeyboardRemove())
-    await message.answer(get_ton_text(wallet_address_base64, memo_code, user), reply_markup=ton_button,
+    await message.answer(get_ton_text(wallet_address_base64, memo_code, user, require_ton), reply_markup=ton_button,
                          parse_mode=ParseMode.MARKDOWN)
 
 
 @router.callback_query(F.data.startswith("ton_"))
 async def ton_reader(query: CallbackQuery, user: User):
     memo = query.data.split('_')[1]
-    status, error = await check_payment(wallet_address_hex16, memo, 0.6)
+    require = float(query.data.split('_')[2])
+    error_require = (require * 0.95)
+    status, error = await check_payment(wallet_address_hex16, memo, error_require)
     if status:
         await query.answer(translate("22", user.lang), show_alert=True)
         await query.message.delete()

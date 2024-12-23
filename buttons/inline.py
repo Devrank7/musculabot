@@ -43,9 +43,9 @@ def get_wtf_buttons(user: User, url, order_id):
     ])
 
 
-def get_ton_buttons(user: User, memo):
+def get_ton_buttons(user: User, memo, require: float):
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=inline_translate("8", user.lang), callback_data=f"ton_{memo}")]
+        [InlineKeyboardButton(text=inline_translate("8", user.lang), callback_data=f"ton_{memo}_{require}")]
     ])
 
 
