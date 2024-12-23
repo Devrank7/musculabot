@@ -37,6 +37,6 @@ def check_payment_status(txn_id) -> [Any, bool]:
     try:
         status = cp_client.get_tx_info({"txid": txn_id})
         logger.info(f"Status: {status}")
-        return status, int(status['status']) == 1
+        return status, int(status['status']) in [1, 100, 200]
     except Exception as e:
         logger.error(f"Error n 'coinpayments.py', method: 'check_payment_status', reason: {e} ")
