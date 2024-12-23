@@ -31,7 +31,7 @@ def get_ton_text(wallet_address, memo, user: User, ton_require: float):
 `- - - - - - - - - - - - - - - - -` 
 👉 *Memo:* `{memo}`
 
-{translate("38", user.lang)} {ton_require} TON
+{translate("38", user.lang)} {ton_require} TON*
 {translate("38.1", user.lang)}
 '''
 
