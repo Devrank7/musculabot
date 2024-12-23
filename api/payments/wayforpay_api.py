@@ -17,7 +17,7 @@ MERCHANT_SECRET_KEY = os.getenv('WFP_SECRET_KEY')
 MERCHANT_PASSWORD = os.getenv("MERCHANT_PASSWORD")
 
 
-def create_regular_invoice(order_id):
+def create_regular_invoice(order_id, amount: int):
     try:
         data = {
             "merchantAccount": MERCHANT_ACCOUNT,
@@ -25,11 +25,11 @@ def create_regular_invoice(order_id):
             "merchantDomainName": "mikeboreyko_com",
             "orderReference": order_id,
             "orderDate": str(int(time.time())),
-            "amount": "165",
+            "amount": f"{amount}",
             "currency": "UAH",
             "orderTimeout": "49000",
             "productName[]": ["Подписка на телеграм канал"],
-            "productPrice[]": ["165"],
+            "productPrice[]": [f"{amount}"],
             "productCount[]": ["1"],
             "merchantSignature": "487d4fd48ca0b4a38a85e6cfd0c0c9f8",
             'regularMode': 'monthly',

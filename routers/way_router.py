@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.types import CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import CallbackQuery
 
 from buttons.reply import pay_buttons, regular_but
 from db.sql.model import User

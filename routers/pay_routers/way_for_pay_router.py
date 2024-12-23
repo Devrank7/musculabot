@@ -4,6 +4,7 @@ from aiogram import Router, F
 from aiogram.types import Message, CallbackQuery, ReplyKeyboardRemove
 
 from api.bot.access import JoinUser
+from api.currency.curency import get_require
 from api.payments.wayforpay_api import create_regular_invoice, check_ok_regular_invoice
 from buttons.inline import get_wtf_buttons
 from db.sql.model import User
@@ -20,7 +21,8 @@ router.callback_query.middleware(AuthMiddlewareCallback())
 @router.message(ReplyFilter('2'))
 async def pay_router(message: Message, user: User) -> None:
     order_id = f"HD{user.tg_id}PD{random.randint(1, 1000)}"
-    url = create_regular_invoice(order_id)
+    req = get_require()
+    url = create_regular_invoice(order_id, req)
     wtf_buttons = get_wtf_buttons(user, url, order_id)
     await message.answer(translate("19", user.lang), reply_markup=ReplyKeyboardRemove())
     await message.answer(translate("18", user.lang), reply_markup=wtf_buttons)
