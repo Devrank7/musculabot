@@ -53,7 +53,6 @@ def create_regular_invoice(order_id):
             'https://secure.wayforpay.com/pay',
             data=data
         )
-        print(f"Rest: {rest.text}")
         return 'https://secure.wayforpay.com' + \
                BeautifulSoup(rest.text, features="html.parser").find('form', id='cardpay')['action'], data[
             'merchantSignature']

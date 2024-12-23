@@ -42,13 +42,11 @@ class DistributedTask(Task):
                 await remove_regular_invoice(order)
                 await run_sql(DetachWfpDataFromUser(user.tg_id))
                 await KickUser(self.bot, user.tg_id).task()
-                logger.warning("Пользователь с WFP был кикнут")
                 await self.bot.send_message(user.tg_id,
                                             translate("2", user.lang),
                                             reply_markup=get_subscribe(user))
         else:
             await KickUser(self.bot, user.tg_id).task()
-            logger.info("Пользователь был кикнут")
 
     async def distributed(self, user: User):
         try:
@@ -67,7 +65,6 @@ class DistributedTask(Task):
                                             reply_markup=get_dismiss(user))
                 await run_sql(UpdateUserDateOneOnNone(user.tg_id))
                 return
-            logger.info("Пользователь был уведомлен!")
         except Exception as e:
             logger.error(f"method distribute tasks.py: {e}")
 
