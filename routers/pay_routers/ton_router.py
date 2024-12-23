@@ -45,7 +45,7 @@ async def pay_router(message: Message, user: User) -> None:
     ton_text = get_ton_text(wallet_address_base64, memo_code, user, require_ton)
     print(f"TEXT FOR TON: {ton_text}")
     await message.answer(translate("19", user.lang), reply_markup=ReplyKeyboardRemove())
-    await message.answer(escape_markdown(ton_text), reply_markup=ton_button,
+    await message.answer(ton_text, reply_markup=ton_button,
                          parse_mode=ParseMode.MARKDOWN)
 
 
