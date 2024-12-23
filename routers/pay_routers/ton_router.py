@@ -13,7 +13,7 @@ from db.sql.model import User
 from filter.reply import ReplyFilter
 from lang.language import translate
 from middlewares.middleware import AuthMiddleware, AuthMiddlewareCallback
-from utility.utils import generate_random_code
+from utility.utils import generate_random_code, escape_markdown
 
 router = Router()
 router.message.middleware(AuthMiddleware())
@@ -42,8 +42,10 @@ async def pay_router(message: Message, user: User) -> None:
     require_ton = get_require_ton()
     print(f"REQUIRE TON: {require_ton}")
     ton_button = get_ton_buttons(user, memo_code, require_ton)
+    ton_text = get_ton_text(wallet_address_base64, memo_code, user, require_ton)
+    print(f"TEXT FOR TON: {ton_text}")
     await message.answer(translate("19", user.lang), reply_markup=ReplyKeyboardRemove())
-    await message.answer(get_ton_text(wallet_address_base64, memo_code, user, require_ton), reply_markup=ton_button,
+    await message.answer(escape_markdown(ton_text), reply_markup=ton_button,
                          parse_mode=ParseMode.MARKDOWN)
 
 
@@ -51,6 +53,8 @@ async def pay_router(message: Message, user: User) -> None:
 async def ton_reader(query: CallbackQuery, user: User):
     memo = query.data.split('_')[1]
     require = float(query.data.split('_')[2])
+    print(f"MEMO: {memo}")
+    print(f"REQ: {require}")
     error_require = (require * 0.95)
     status, error = await check_payment(wallet_address_hex16, memo, error_require)
     if status:

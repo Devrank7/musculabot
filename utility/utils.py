@@ -1,6 +1,7 @@
 import hashlib
 import hmac
 import random
+import re
 import string
 from datetime import datetime
 
@@ -36,3 +37,11 @@ def generate_hmac_md5(merchant_account, merchant_domain_name, order_reference, o
     print(data_string)
     hmac_md5 = hmac.new(secret_key.encode('utf-8'), data_string.encode('utf-8'), hashlib.md5).hexdigest()
     return hmac_md5
+
+
+def escape_markdown(text):
+    """
+    Экранирует специальные символы для Markdown-разметки.
+    """
+    escape_chars = r'_*[]()~`>#+-=|{}.!'
+    return re.sub(f'([{re.escape(escape_chars)}])', r'\\\1', text)
